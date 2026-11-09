@@ -1,0 +1,99 @@
+{
+  "checkedAt": "2026-11-09T11:51:48.834Z",
+  "version": "2.0.0",
+  "variant": "keep-default",
+  "browser": "151.0.7922.34",
+  "tests": [
+    {
+      "name": "Address-bar extension loads with normal chat and no popup action",
+      "status": "PASS"
+    },
+    {
+      "name": "Plain address-bar prompt plus one Enter submits the exact prompt",
+      "status": "PASS",
+      "prompt": "Calculate 19 plus 23. Reply with exactly ASK_CHATGPT_NOW_V2_F46002A7D9_ followed by the answer, with no spaces.",
+      "submittedUrl": "https://chatgpt.com/?q=Calculate+19+plus+23.+Reply+with+exactly+ASK_CHATGPT_NOW_V2_F46002A7D9_+followed+by+the+answer%2C+with+no+spaces.",
+      "keywordUsed": false,
+      "tabKeyUsed": false
+    },
+    {
+      "name": "Normal chat URL does not force the web-search tool",
+      "status": "PASS",
+      "queryParameters": [
+        "q"
+      ]
+    },
+    {
+      "name": "ChatGPT automatically returns a real answer with no second prompt or send",
+      "status": "PASS",
+      "expected": "ASK_CHATGPT_NOW_V2_F46002A7D9_42",
+      "reply": "ASK_CHATGPT_NOW_V2_F46002A7D9_42",
+      "composerInteractions": 0,
+      "signedIn": false,
+      "publicOpenAIAPI": false
+    },
+    {
+      "name": "Answer stays in the original tab with no popup or additional window",
+      "status": "PASS",
+      "tabId": 1217907046,
+      "newTabs": 0,
+      "windows": 1
+    },
+    {
+      "name": "Original Google search provider is unchanged before and after the live prompt",
+      "status": "PASS",
+      "before": {
+        "name": "Google",
+        "keyword": "google.com",
+        "url": "{google:baseURL}search?q=%s&{google:RLZ}{google:originalQueryForSuggestion}{google:assistedQueryStats}{google:searchFieldtrialParameter}{google:language}{google:prefetchSource}{google:searchClient}{google:sourceId}{google:searchSource}{google:contextualSearchVersion}ie={inputEncoding}"
+      },
+      "after": {
+        "name": "Google",
+        "keyword": "google.com",
+        "url": "{google:baseURL}search?q=%s&{google:RLZ}{google:originalQueryForSuggestion}{google:assistedQueryStats}{google:searchFieldtrialParameter}{google:language}{google:prefetchSource}{google:searchClient}{google:sourceId}{google:searchSource}{google:contextualSearchVersion}ie={inputEncoding}"
+      }
+    },
+    {
+      "name": "No extension service worker errors",
+      "status": "PASS"
+    }
+  ],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/prepare",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8"
+    },
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/updates",
+      "status": 200,
+      "contentType": "application/vnd.openai.conversation-source+ndjson; charset=utf-8"
+    }
+  ],
+  "providerSetup": {
+    "platform": "linux",
+    "method": "No search settings changed; original Google default retained",
+    "originalDefault": {
+      "name": "Google",
+      "keyword": "google.com",
+      "url": "{google:baseURL}search?q=%s&{google:RLZ}{google:originalQueryForSuggestion}{google:assistedQueryStats}{google:searchFieldtrialParameter}{google:language}{google:prefetchSource}{google:searchClient}{google:sourceId}{google:searchSource}{google:contextualSearchVersion}ie={inputEncoding}"
+    }
+  },
+  "status": "PASS",
+  "note": "Real signed-out ChatGPT conversation using native address-bar input. Google remained the browser default search provider. DNR redirects Google/Bing search pages, including searches from those sites.",
+  "extensionFilesSha256": {
+    "core.js": "eb0bb96128900eb2795102702150b913a6674d4babc1ea4c67448b3b7878b16c",
+    "icons/icon128.png": "d36fb9769cd85d67d9edfffb8fb83ded470efa057d489254e8cc7151936a2b0f",
+    "icons/icon16.png": "5bfb274c4c40e17de3caab696a3668cd264aa8ede8524ad7fef358184570b6f7",
+    "icons/icon32.png": "c23acdcb68efbac186a0b1bdc2e784dd4e1456a840912fece86677128e15cf5e",
+    "icons/icon48.png": "a787f6ce1007b2b4c6c1492cd1622c6db6c4b7ff0f5f0d4b63243be7c5c7bd32",
+    "manifest.json": "74957098255d3cea605d3a20c36cb80ffdda5de8beb13ccb1f3c6f778efa208e",
+    "rules.json": "bbdefbf00f4626d130b7474f00461a9361cbc0a0df3b918f1f48683cb50366e6",
+    "worker.js": "6f88ad830fbe331eb5363ca54244b903be3ac69e8635e2f3f45e4b3109af12ce"
+  },
+  "browserGeneratedMetadataExcluded": [
+    "_metadata/generated_indexed_rulesets/_ruleset1"
+  ]
+}

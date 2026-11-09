@@ -1,15 +1,9 @@
-import { openPrompt, popupOptions } from "./core.js";
+import { openPrompt } from "./core.js";
 
 // Register listeners at the top level so Chrome can wake the service worker.
-chrome.action.onClicked.addListener((tab) => {
-  chrome.windows.create(popupOptions(tab)).catch((error) => {
-    console.error("Could not open ChatGPT:", error.message);
-  });
-});
-
 chrome.omnibox.onInputStarted.addListener(() => {
   chrome.omnibox.setDefaultSuggestion({
-    description: "<match>Ask ChatGPT</match><dim> — type your prompt, then press Enter</dim>"
+    description: "<match>Ask ChatGPT</match><dim> — press Enter to submit in this tab</dim>"
   });
 });
 

@@ -1,41 +1,43 @@
 {
-  "checkedAt": "2026-11-09T04:16:14.098Z",
+  "checkedAt": "2026-11-09T11:51:11.222Z",
+  "version": "2.0.0",
+  "variant": "default-provider",
   "browser": "151.0.7922.34",
   "tests": [
     {
-      "name": "Manifest V3 extension loads in real Chromium",
-      "status": "PASS",
-      "extensionId": "glocnnjmpaeminapikjnplfbmoibnnfl"
+      "name": "Address-bar extension loads with normal chat and no popup action",
+      "status": "PASS"
     },
     {
-      "name": "Native ask + Tab + prompt + Enter opens chatgpt.com",
+      "name": "Plain address-bar prompt plus one Enter submits the exact prompt",
       "status": "PASS",
-      "prompt": "Calculate 19 plus 23. Reply with exactly ASK_CHATGPT_NOW_6A0EF3C1AB_ followed by the answer, with no spaces."
+      "prompt": "Calculate 19 plus 23. Reply with exactly ASK_CHATGPT_NOW_V2_16B132080D_ followed by the answer, with no spaces.",
+      "submittedUrl": "https://chatgpt.com/?q=Calculate+19+plus+23.+Reply+with+exactly+ASK_CHATGPT_NOW_V2_16B132080D_+followed+by+the+answer%2C+with+no+spaces.",
+      "keywordUsed": false,
+      "tabKeyUsed": false
     },
     {
-      "name": "Live ChatGPT website conversation POST returns a real assistant reply",
+      "name": "Normal chat URL does not force the web-search tool",
       "status": "PASS",
-      "expected": "ASK_CHATGPT_NOW_6A0EF3C1AB_42",
-      "reply": "ASK_CHATGPT_NOW_6A0EF3C1AB_42",
+      "queryParameters": [
+        "q"
+      ]
+    },
+    {
+      "name": "ChatGPT automatically returns a real answer with no second prompt or send",
+      "status": "PASS",
+      "expected": "ASK_CHATGPT_NOW_V2_16B132080D_42",
+      "reply": "ASK_CHATGPT_NOW_V2_16B132080D_42",
+      "composerInteractions": 0,
       "signedIn": false,
       "publicOpenAIAPI": false
     },
     {
-      "name": "Native toolbar action shortcut opens a separate ChatGPT popup window",
+      "name": "Answer stays in the original tab with no popup or additional window",
       "status": "PASS",
-      "url": "https://chatgpt.com/",
-      "bounds": {
-        "left": 20,
-        "top": 20,
-        "width": 520,
-        "height": 760,
-        "windowState": "normal"
-      }
-    },
-    {
-      "name": "Native mouse click on the extension action opens ChatGPT in a popup",
-      "status": "PASS",
-      "url": "https://chatgpt.com/"
+      "tabId": 710182923,
+      "newTabs": 0,
+      "windows": 1
     },
     {
       "name": "No extension service worker errors",
@@ -62,15 +64,21 @@
       "contentType": "application/json; charset=utf-8"
     }
   ],
+  "providerSetup": {
+    "platform": "linux",
+    "method": "One-time Chrome settings UI: add ChatGPT and choose Make default",
+    "automaticExtensionOverrideVerified": false,
+    "reason": "Chrome documents automatic search-provider overrides for Windows and macOS only."
+  },
   "status": "PASS",
-  "note": "Tests use the actual ChatGPT website in a fresh signed-out browser profile, not the public OpenAI developer API. No model is forced or inferred from the reply.",
+  "note": "Real signed-out ChatGPT website conversation. Linux default search provider was configured once through Chrome settings; Windows/macOS automatic extension overrides were not tested. The prompt was typed only in the native browser address bar.",
   "extensionFilesSha256": {
-    "core.js": "37f4640d5b01ebe8d1d0c9a1df36ff0ab44f5aa9326e7a85c3948a4ccf1c2b7f",
+    "core.js": "eb0bb96128900eb2795102702150b913a6674d4babc1ea4c67448b3b7878b16c",
     "icons/icon128.png": "d36fb9769cd85d67d9edfffb8fb83ded470efa057d489254e8cc7151936a2b0f",
     "icons/icon16.png": "5bfb274c4c40e17de3caab696a3668cd264aa8ede8524ad7fef358184570b6f7",
     "icons/icon32.png": "c23acdcb68efbac186a0b1bdc2e784dd4e1456a840912fece86677128e15cf5e",
     "icons/icon48.png": "a787f6ce1007b2b4c6c1492cd1622c6db6c4b7ff0f5f0d4b63243be7c5c7bd32",
-    "manifest.json": "4d4a3a708c6f47a4d8abf32b9e584c9a816a04d918977699671f465ccbbe49e6",
-    "worker.js": "cd229034d70c1ec1b3bd5d8ed84bf54c92148633cda0caac9ab29cab083ace64"
+    "manifest.json": "6055f31fd278a8429da2aa05337153016d50cc7a7ee33b904a49864d709a02c5",
+    "worker.js": "6f88ad830fbe331eb5363ca54244b903be3ac69e8635e2f3f45e4b3109af12ce"
   }
 }

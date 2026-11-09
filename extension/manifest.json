@@ -1,26 +1,23 @@
 {
   "manifest_version": 3,
   "name": "Ask ChatGPT Now",
-  "version": "1.0.0",
-  "description": "Click for a ChatGPT window, or type ask + Tab + your prompt in the address bar. No API key needed.",
+  "version": "2.0.0",
+  "description": "Type a question in Chrome's address bar and press Enter. ChatGPT opens in the same tab and submits it as a normal chat.",
   "minimum_chrome_version": "109",
   "homepage_url": "https://github.com/liush2yuxjtu/ask-chatgpt-now",
-  "action": {
-    "default_title": "Open ChatGPT in a window (Alt+Shift+G)",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "32": "icons/icon32.png"
-    }
-  },
   "background": {
     "service_worker": "worker.js",
     "type": "module"
   },
   "omnibox": { "keyword": "ask" },
-  "commands": {
-    "_execute_action": {
-      "suggested_key": { "default": "Alt+Shift+G" },
-      "description": "Open ChatGPT in a window"
+  "chrome_settings_overrides": {
+    "search_provider": {
+      "name": "ChatGPT",
+      "keyword": "chatgpt.com",
+      "search_url": "https://chatgpt.com/?q={searchTerms}",
+      "favicon_url": "https://chatgpt.com/favicon.ico",
+      "encoding": "UTF-8",
+      "is_default": true
     }
   },
   "icons": {

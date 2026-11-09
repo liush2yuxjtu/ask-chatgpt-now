@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://chatgpt.com/?q=\\1" }
+    },
+    "condition": {
+      "regexFilter": "^https://(?:www\\.)?google\\.com/search\\?(?:[^#]*&)?q=([^&#]*)(?:&[^#]*)?(?:#.*)?$",
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": { "regexSubstitution": "https://chatgpt.com/?q=\\1" }
+    },
+    "condition": {
+      "regexFilter": "^https://(?:www\\.)?bing\\.com/search\\?(?:[^#]*&)?q=([^&#]*)(?:&[^#]*)?(?:#.*)?$",
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]

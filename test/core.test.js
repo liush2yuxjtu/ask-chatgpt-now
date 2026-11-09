@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
-import { buildChatUrl, openPrompt, popupOptions } from "../extension/core.js";
+import { buildChatUrl, openPrompt } from "../extension/core.js";
 
 test("empty prompts open the ChatGPT home page", () => {
   for (const input of [undefined, null, "", "  \n\t"]) {
@@ -28,13 +28,16 @@ test("prompt text round-trips without changing query parameters or origin", () =
   }
 });
 
-test("popup opens a real website window and preserves incognito context", () => {
-  const regular = popupOptions({ incognito: false });
-  assert.equal(regular.url, "https://chatgpt.com/");
-  assert.equal(regular.type, "popup");
-  assert.equal(regular.focused, true);
-  assert.equal("incognito" in regular, false);
-  assert.equal(popupOptions({ incognito: true }).incognito, true);
+test("address-bar search provider submits a normal chat and does not force web search", () => {
+  const manifest = JSON.parse(readFileSync(new URL("../extension/manifest.json", import.meta.url)));
+  const provider = manifest.chrome_settings_overrides.search_provider;
+  assert.equal(provider.is_default, true);
+  assert.equal(provider.encoding, "UTF-8");
+  const prompt = "Explain C++ & C# ? # + 100%";
+  const url = new URL(provider.search_url.replace("{searchTerms}", encodeURIComponent(prompt)));
+  assert.equal(url.origin, "https://chatgpt.com");
+  assert.equal(url.searchParams.get("q"), prompt);
+  assert.deepEqual([...url.searchParams.keys()], ["q"]);
 });
 
 test("omnibox respects current, foreground, and background destinations", async () => {
@@ -65,5 +68,6 @@ test("manifest has no site access, API keys, content scripts, or elevated permis
   assert.equal(manifest.background.type, "module");
   assert.ok(existsSync(new URL(manifest.background.service_worker, root)));
   for (const path of Object.values(manifest.icons)) assert.ok(existsSync(new URL(path, root)));
-  assert.equal("default_popup" in manifest.action, false);
+  assert.equal("action" in manifest, false);
+  assert.equal("commands" in manifest, false);
 });

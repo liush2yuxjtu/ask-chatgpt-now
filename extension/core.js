@@ -6,17 +6,6 @@ export function buildChatUrl(text = "") {
   return url.href;
 }
 
-export function popupOptions(tab) {
-  return {
-    url: buildChatUrl(),
-    type: "popup",
-    width: 520,
-    height: 760,
-    focused: true,
-    ...(tab?.incognito ? { incognito: true } : {})
-  };
-}
-
 /** Respect Enter, Alt+Enter, and middle-click's requested destination. */
 export async function openPrompt(tabs, text, disposition = "currentTab") {
   const url = buildChatUrl(text);
