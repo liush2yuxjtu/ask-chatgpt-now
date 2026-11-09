@@ -1,71 +1,115 @@
-# Ask ChatGPT Now — v3
+# Ask ChatGPT Now
 
-**修复“问题已填入，但还要手动点击发送”：v3 由扩展填入问题并点击 Send 一次，不再依赖 ChatGPT 的 q 链接是否自动发送。**
+### Your question. One Enter.
 
-之前的 URL-only 建议说得过于笼统：匿名会话中观察到的自动回答，不能保证已登录会话同样自动发送。单独设置 https://chatgpt.com/?q=%s 可能只会预填草稿。
+Type a question in Chrome's address bar. Press **Enter**. ChatGPT opens in the **same tab**, and the extension fills in your question and clicks **Send** once.
 
-## 升级与使用
+No second Send click. No popup. No forced Web Search.
 
-1. 移除旧版 v1/v2，或用 v3 文件替换原文件夹并在 chrome://extensions 重新加载。只启用一个版本。
-2. 选择一个 [v3 主版本 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-v3.0.0.zip) 或 [v3 保留默认引擎版 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-keep-default-v3.0.0.zip)，解压，在 chrome://extensions 用“加载已解压的扩展程序”加载。
-3. 新版需要 chatgpt.com 页面访问权限和 webNavigation 权限，用于确认地址栏请求并完成发送。
-   加载或升级后，请先刷新已经打开的 ChatGPT 页面，让新内容脚本生效。
-4. 主版本在 Windows/macOS 使用搜索引擎设置覆盖。在 Linux 或原先已经手动配置过 ChatGPT 搜索引擎时，检查“当前默认”条目的查询网址，改为：
+[![Checks](https://github.com/liush2yuxjtu/ask-chatgpt-now/actions/workflows/check.yml/badge.svg)](https://github.com/liush2yuxjtu/ask-chatgpt-now/actions/workflows/check.yml)
+[![Release](https://img.shields.io/github/v/release/liush2yuxjtu/ask-chatgpt-now)](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/latest)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-~~~text
-https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=%s
-~~~
+**[Download v3.0.0](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/download/v3.0.0/ask-chatgpt-now-v3.0.0.zip)** · [Keep your default engine](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/download/v3.0.0/ask-chatgpt-now-keep-default-v3.0.0.zip) · [中文说明](README.zh-CN.md)
 
-5. 先登录 ChatGPT，再在 Chrome 地址栏输入普通问题并按 Enter。扩展等待输入框和发送按钮就绪后自动点击 Send。
+![Real Chrome recording: a question is entered in the address bar, then ChatGPT submits it and answers in the same tab.](docs/assets/demo.gif)
 
-这个网址是给 **Chrome 搜索引擎设置**使用的模板，需要 v3 扩展。它不是一个无需扩展就能自动发送的普通链接。为避免外部网页触发聊天，直接点击或粘贴问题链接不会获得自动发送授权。
+*Actual 9-second Chrome recording, using signed-out ChatGPT. [Watch the MP4](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/docs/verification/browser-verification.mp4) · [Read the test report](docs/VERIFICATION.md). A real signed-in account has not yet been verified.*
 
-如果使用保留默认引擎版，保持 Google.com 或 Bing.com 为默认；扩展会把对应搜索页导航转成同样的 v3 交接格式。它也会影响从这些搜索网站页面发起的搜索，但 v3 仅对地址栏发起的请求自动发送，网页内发起的跳转不会获得发送授权。
+## Make the address bar your prompt box
 
-## 自动发送的边界
+```text
+Explain DNS in one sentence.                   → Enter → ChatGPT
+帮我把这句话改得更自然：明天我们讨论一下。       → Enter → ChatGPT
+Give me three ideas for a weekend side project. → Enter → ChatGPT
+```
 
-- 只接受 Chrome 标记为来自地址栏的搜索导航；普通网页链接、页面跳转、后退和刷新不会自动发送。
-- 每次交接只能被对应标签页和文档消费一次；发送前移除交接片段，避免刷新重发。
-- 确认输入框内容是当前问题后，仅点击一次 Send。若用户先自行发送，扩展停止。
-- 如发现不相关草稿，扩展会显示提示并停止，避免覆盖已有内容。
-- 如页面未就绪、需要登录或 ChatGPT 改变了页面结构，扩展会提示未发送；不会循环点击，也不会绕过登录或网站限制。
+Use ordinary questions: no `ask` prefix and no Tab shortcut. Chrome still treats URLs as website navigation. The extension uses the ChatGPT website; it needs no API key and does not select or unlock a model. Your ChatGPT account, available models, and usage limits apply.
 
-不会打开弹窗或新窗口，也不强制开启网页搜索。没有 OpenAI API key，没有调用 api.openai.com，没有指定或解锁模型。模型和限额由 ChatGPT 决定。
+## Install the preview
 
-## 验证结果与明确限制
+**Available on GitHub as a developer preview. Chrome Web Store publication is pending; these ZIPs require manual loading.** See [distribution status](docs/DISTRIBUTION.md).
 
-[完整验证记录](docs/VERIFICATION.md)分别记录：
+1. Download **one** build below and extract the ZIP to a folder you will keep.
+2. Open `chrome://extensions` and turn on **Developer mode**.
+3. Click **Load unpacked** and select the extracted folder containing `manifest.json`.
+4. Refresh any already-open ChatGPT pages. For the main build, accept Chrome's search-provider change if offered; use the manual setup below if needed.
+5. Enter a question in the address bar and press **Enter**. If ChatGPT requires login, sign in and retry from the address bar.
 
-- 真实匿名 ChatGPT：扩展实际点击 Send **1 次**，人工发送 **0 次**，收到真实对话 HTTP 200 和正确回复。
-- 受控预填回归：textarea 和 contenteditable 两种已填入但未发送的布局，都等待就绪后发送一次；刷新不重复发送。
-- 保留默认引擎版：同样获得真实回复，Google 默认设置前后不变。
+| Build | What changes | Download |
+| --- | --- | --- |
+| **Main** | Requests ChatGPT as Chrome's default search provider. | [ZIP](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/download/v3.0.0/ask-chatgpt-now-v3.0.0.zip) |
+| **Keep default** | Keeps Google.com or Bing.com as the default setting and redirects their search navigations to ChatGPT. | [ZIP](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/download/v3.0.0/ask-chatgpt-now-keep-default-v3.0.0.zip) |
 
-**尚无真实已登录账号的实站验证。受控页面测试不等于登录账号验证；不能据此保证所有账号、模型和页面版本都成功。**
+The keep-default build supports HTTPS searches on `google.com`, `www.google.com`, `bing.com`, and `www.bing.com`. It also redirects searches started on those websites, but only address-bar searches are authorized to auto-send. Other engines and country domains are unsupported. Its extra site and redirect permissions are opt-in through this separate build.
 
-## 安装链接与旧方案
+Enable only one build. When upgrading from v1/v2, remove the old extension or replace its folder and click **Reload**. Refresh ChatGPT afterward.
 
-本项目尚未发布到 Chrome 商店，GitHub ZIP 仍需开发者模式加载。不能提供不存在的“一键安装”商店链接。[发布条件与政策限制](docs/DISTRIBUTION.md)仍适用。
+<details>
+<summary><strong>Main build: manual search-provider setup, including Linux</strong></summary>
 
-旧的 [URL-only 方案说明](docs/NO_EXTENSION.md)已经更正，不再把它作为可靠的自动发送方案推荐。
+Chrome documents automatic extension search-provider overrides for Windows and macOS. On Linux, or if your existing provider still has an old URL:
 
-## 隐私
+1. Open `chrome://settings/searchEngines`.
+2. Add or edit a ChatGPT site-search entry with shortcut `chatgpt.com` and this URL:
 
-问题使用专用片段参数交接，不依赖原生 q 自动发送。导航请求本身不携带片段，但问题可能短暂出现在地址栏或历史中。
+   ```text
+   https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=%s
+   ```
 
-扩展在浏览器内存中短暂保存待发送内容，匹配标签页和文档后立即消费；没有分析统计、遥测、远程脚本或聊天上传服务。页面访问权限只用于查找输入框、填入当前问题并点击发送。ChatGPT 按 [OpenAI 隐私政策](https://openai.com/policies/privacy-policy/)处理发送的内容。
+3. Use that entry's menu to choose **Make default**. This may first require activating the entry under Site search.
 
-保留默认版另外请求 Google.com/Bing.com 站点权限及声明式重定向权限。浏览器原有的搜索建议请求仍可能交给原搜索引擎。
+The URL is a Chrome search-provider template that requires this extension. Clicking or pasting a prompt URL is not an authorized address-bar search and will not auto-send.
 
-## 开发
+</details>
 
-需要 Node.js 20+ 和 Python 3。普通检查与打包没有 npm 依赖：
+Need a direct repository download? [Main ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-v3.0.0.zip) · [Keep-default ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-keep-default-v3.0.0.zip) · [SHA-256 checksums](downloads/SHA256SUMS.txt).
 
-~~~sh
+## What has passed
+
+The public v3 download was tested in a real, visible Chrome window with the actual ChatGPT website:
+
+| Check | Observed result |
+| --- | --- |
+| Native address-bar question + Enter | One Enter; no keyword or Tab shortcut |
+| Send action | Extension: **1** click · manual: **0** clicks |
+| Real ChatGPT conversation | **HTTP 200** and the expected answer |
+| Browser destination | Original tab; no added tab or window |
+| Keep-default build with Google | Default-provider settings unchanged |
+| Syntax, unit tests, packaging | Passed; **9** unit tests |
+
+**Scope:** live website tests used signed-out ChatGPT on Chrome for Testing 151 on Linux. Signed-in accounts and Windows/macOS automatic provider setup remain unverified. Prefilled textarea/contenteditable regressions passed on controlled fixtures; those fixtures are not live account tests. [Evidence and repeatable checks →](docs/VERIFICATION.md)
+
+## One handoff, one Send
+
+The extension checks Chrome's navigation metadata, waits for the composer and Send button, then sends once. It removes the handoff marker before sending. Reloads, Back, and ordinary webpage links do not authorize another send.
+
+An unrelated draft stops auto-send. If the page is not ready, requires login, or changes its interface, the extension shows a status message instead of repeatedly clicking. A plain `chatgpt.com/?q=...` link can merely prefill a draft; v3 performs the Send action itself.
+
+## Privacy
+
+No analytics, telemetry, remote scripts, or publisher-operated chat backend. The extension temporarily holds the handoff in browser memory and interacts with the ChatGPT composer. ChatGPT receives your question when it is sent, under [OpenAI's privacy policy](https://openai.com/policies/privacy-policy/).
+
+The prompt fragment may appear in the address bar or history before it is removed. Existing browser search suggestions can still go to your search provider; the keep-default build also relies on Google/Bing search navigations. [Full privacy and permission details →](PRIVACY.md)
+
+## Pass it on
+
+Know someone who asks ChatGPT questions all day? Send them the repo:
+
+> Ask ChatGPT Now: type a question in Chrome's address bar, press Enter, and let the extension send it to ChatGPT in the same tab. Open source, no API key. Developer preview: https://github.com/liush2yuxjtu/ask-chatgpt-now
+
+**[Star the project](https://github.com/liush2yuxjtu/ask-chatgpt-now)** to find it again. [Report an issue](https://github.com/liush2yuxjtu/ask-chatgpt-now/issues/new) with your Chrome version, build, and whether ChatGPT was signed in. Keep private prompts out of screenshots.
+
+## Build it yourself
+
+Node.js 20+ and Python 3. Ordinary checks and packaging need no npm dependencies.
+
+```sh
 npm run check
 npm test
 npm run package
-~~~
+```
 
-打包生成两个 v3 ZIP，manifest.json 均位于根目录。[downloads/](downloads/) 提供发布副本和 [SHA-256 校验值](downloads/SHA256SUMS.txt)。
+Archives are written to `dist/`, with `manifest.json` at the root. The release workflow checks committed ZIP contents against the corresponding real-browser report before uploading them. Live browser tests are separate from CI; see [verification](docs/VERIFICATION.md).
 
-MIT licensed. Independent project; not affiliated with or endorsed by OpenAI.
+[MIT licensed](LICENSE). Independent project; not affiliated with or endorsed by OpenAI or Google. ChatGPT is an OpenAI product.

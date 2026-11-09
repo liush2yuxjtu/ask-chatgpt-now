@@ -1,0 +1,65 @@
+name: Publish verified release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag whose tested ZIPs should be uploaded
+        required: true
+        default: v3.0.0
+        type: string
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-release.yml
+      - scripts/prepare-release.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-verified-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify and stage previously tested archives
+        id: prepare
+        env:
+          REQUESTED_TAG: ${{ inputs.tag || github.event.release.tag_name || '' }}
+        run: python3 scripts/prepare-release.py
+      - name: Upload release assets without replacing different files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.prepare.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          release_assets=$(gh release view "$RELEASE_TAG" --json assets --jq '.assets[].name')
+          release_download=$(mktemp -d)
+          release_paths=()
+          for release_file in dist/*; do
+            release_name=$(basename "$release_file")
+            if [[ $'\n'"$release_assets"$'\n' == *$'\n'"$release_name"$'\n'* ]]; then
+              gh release download "$RELEASE_TAG" --pattern "$release_name" --dir "$release_download"
+              cmp "$release_file" "$release_download/$release_name"
+            else
+              release_paths+=("$release_file")
+            fi
+          done
+          if (( ${#release_paths[@]} )); then
+            gh release upload "$RELEASE_TAG" "${release_paths[@]}"
+          fi
+          gh release view "$RELEASE_TAG" --json url,assets
