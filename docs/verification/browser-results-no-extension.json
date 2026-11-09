@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-09T13:38:38.752Z",
+  "browser": "151.0.7922.34",
+  "extensionLoaded": false,
+  "tests": [
+    {
+      "name": "ChatGPT",
+      "status": "PASS",
+      "keyword": "gpt",
+      "url": "https://chatgpt.com/?q=%s"
+    },
+    {
+      "name": "One native address-bar prompt plus one Enter opens normal ChatGPT chat",
+      "status": "PASS",
+      "prompt": "Calculate 19 plus 23. Reply with exactly NO_EXTENSION_D527B2D33A_ followed by the answer, without spaces.",
+      "submittedUrl": "https://chatgpt.com/?q=Calculate+19+plus+23.+Reply+with+exactly+NO_EXTENSION_D527B2D33A_+followed+by+the+answer%2C+without+spaces.",
+      "webSearchForced": false
+    },
+    {
+      "name": "ChatGPT automatically answers the prompt with a real HTTP 200 conversation response",
+      "status": "PASS",
+      "reply": "NO_EXTENSION_D527B2D33A_42",
+      "composerInteractions": 0,
+      "publicOpenAIAPI": false
+    },
+    {
+      "name": "Same tab and window, with no popup or additional prompt",
+      "status": "PASS",
+      "newTabs": 0,
+      "windows": 1
+    }
+  ],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/prepare",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/updates",
+      "status": 200
+    }
+  ],
+  "status": "PASS"
+}

@@ -40,6 +40,12 @@ The updates response used application/vnd.openai.conversation-source+ndjson. Onl
 - [Main build: Linux one-time search-provider setup](verification/search-provider-settings.png)
 - [Keep-default build: actual answer](verification/live-chatgpt-keep-default.png)
 
+## Additional no-extension verification
+
+Chrome's built-in search-provider configuration also passed a separate live run with no project extension loaded. After one configuration through the real settings UI, one native address-bar prompt plus one Enter produced the expected real ChatGPT reply, a conversation HTTP 200, and no additional tab, popup, or composer interaction.
+
+See the [no-extension report](verification/browser-results-no-extension.json), [settings screenshot](verification/no-extension-settings.png), [answer screenshot](verification/no-extension-chatgpt.png), and [zero-download setup guide](NO_EXTENSION.md). The reproducible harness is scripts/browser-no-extension-e2e.cjs and uses the same RUN_LIVE_CHATGPT=1 opt-in as the other live tests.
+
 ## Setup and coverage limits
 
 Chrome's [settings-override documentation](https://developer.chrome.com/docs/extensions/reference/manifest/chrome-settings-override) lists Windows and macOS for automatic extension search-provider overrides. On the Linux test browser, the main build's ChatGPT provider was added and made default once through Chrome's **real settings UI**, before the address-bar flow was tested. This is not evidence that the main extension automatically changes the default provider on Linux or that its Windows/macOS override was tested.

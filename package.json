@@ -6,7 +6,7 @@
   "description": "Send Chrome address-bar prompts straight to normal ChatGPT chat in the current tab.",
   "scripts": {
     "test": "node --test",
-    "check": "node --check extension/core.js && node --check extension/worker.js && node --check scripts/browser-e2e.cjs",
+    "check": "node --check extension/core.js && node --check extension/worker.js && node --check scripts/browser-e2e.cjs && node --check scripts/browser-no-extension-e2e.cjs",
     "package": "python3 scripts/package.py"
   },
   "engines": { "node": ">=20" },
