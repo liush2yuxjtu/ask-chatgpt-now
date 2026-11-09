@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-const { execFileSync } = require('node:child_process');
+const { execFileSync, spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
@@ -7,6 +7,8 @@ const root = path.resolve(__dirname, '..');
 const keepDefault = process.env.TEST_VARIANT === 'keep-default';
 const fixtureType = process.env.TEST_PREFILL_FIXTURE;
 const warmTab = process.env.TEST_WARM_TAB === '1';
+const recordBrowser = process.env.RECORD_BROWSER === '1';
+const providedExtension = process.env.TEST_EXTENSION_DIR;
 if (process.env.RUN_LIVE_CHATGPT !== '1') {
   console.error('This test submits a real prompt to chatgpt.com. Run with RUN_LIVE_CHATGPT=1.');
   process.exit(2);
@@ -14,18 +16,38 @@ if (process.env.RUN_LIVE_CHATGPT !== '1') {
 const scratch = path.join(root, 'work');
 fs.mkdirSync(scratch, { recursive: true });
 const profile = fs.mkdtempSync(path.join(scratch, 'browser-profile-'));
-const extensionRoot = keepDefault ? fs.mkdtempSync(path.join(scratch, 'redirect-extension-')) : path.join(root, 'extension');
-if (keepDefault) execFileSync('python3', ['-c', 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])', path.join(root, 'dist', 'ask-chatgpt-now-keep-default-v3.0.0.zip'), extensionRoot]);
+const extensionRoot = providedExtension ? path.resolve(providedExtension) : keepDefault ? fs.mkdtempSync(path.join(scratch, 'redirect-extension-')) : path.join(root, 'extension');
+if (keepDefault && !providedExtension) execFileSync('python3', ['-c', 'import sys,zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])', path.join(root, 'dist', 'ask-chatgpt-now-keep-default-v3.0.0.zip'), extensionRoot]);
 const artifacts = path.join(root, 'docs', 'verification');
 fs.mkdirSync(artifacts, { recursive: true });
 const report = { checkedAt: new Date().toISOString(), version: '3.0.0', variant: keepDefault ? 'keep-default' : 'default-provider', browser: null, tests: [], network: [] };
 report.environment = fixtureType ? 'controlled-prefilled-fixture-' + fixtureType : 'real-signed-out-chatgpt';
+if (process.env.TEST_RELEASE_ZIP) report.publishedZipSha256 = crypto.createHash('sha256').update(fs.readFileSync(process.env.TEST_RELEASE_ZIP)).digest('hex');
 const native = actions => execFileSync('python3', [path.join(__dirname, 'native-x11.py'), JSON.stringify({ actions })], { env: process.env });
 const pass = (name, details = {}) => {
   report.tests.push({ name, status: 'PASS', ...details });
   console.log('PASS', name, JSON.stringify(details));
 };
 let context;
+let recorder;
+let recordingErrors = '';
+async function stopRecording() {
+  if (!recorder) return;
+  const capture = recorder;
+  recorder = undefined;
+  if (capture.exitCode === null) {
+    const stopped = new Promise(resolve => capture.once('close', resolve));
+    capture.stdin.end('q\n');
+    await stopped;
+  }
+  const file = path.join(artifacts, 'browser-verification.mp4');
+  if (!fs.existsSync(file) || fs.statSync(file).size < 1000) throw Error('Screen recording failed: ' + recordingErrors);
+  report.screenRecording = 'browser-verification.mp4';
+}
+async function observeSession(page) {
+  const loginControls = await page.getByText('Log in', { exact: true }).filter({ visible: true }).count();
+  return { visibleLoginControls: loginControls, signedIn: loginControls > 0 ? false : null };
+}
 async function prepareLinuxSearchProvider(page) {
   // Chrome documents automatic extension search-provider overrides for Windows/macOS.
   // On Linux, test the one-time manual setup through Chrome's real settings UI.
@@ -107,6 +129,7 @@ async function readDefaultSearchProvider(page) {
     await page.goto('https://chatgpt.com/', { waitUntil: 'domcontentloaded' });
     await page.locator('#prompt-textarea, #mobile-composer-prompt').first().waitFor({ state: 'visible' });
   }
+  if (!fixtureType) report.session = { before: await observeSession(page) };
   const initialTabs = await worker.evaluate(() => chrome.tabs.query({ active: true, currentWindow: true }));
   const initialWindows = await worker.evaluate(() => chrome.windows.getAll());
   let newPages = 0;
@@ -125,8 +148,13 @@ async function readDefaultSearchProvider(page) {
       console.log('NETWORK', response.request().method(), url.pathname, response.status());
     }
   });
+  if (recordBrowser) {
+    recorder = spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'x11grab', '-framerate', '10', '-video_size', '1200x900', '-i', process.env.DISPLAY + '+10,10', '-c:v', 'libx264', '-threads', '2', '-preset', 'ultrafast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', path.join(artifacts, 'browser-verification.mp4')], { stdio: ['pipe', 'ignore', 'pipe'] });
+    recorder.stderr.on('data', data => { recordingErrors += data.toString(); });
+    await page.waitForTimeout(600);
+  }
   // One typed prompt and one Enter: no keyword, Tab, composer input or second send.
-  native([{ keys: ['Control_L', 'l'] }, { text: prompt }, { keys: ['Return'] }]);
+  native([{ keys: ['Control_L', 'l'] }, { text: prompt, wait: recordBrowser ? 1.5 : 0.08 }, { keys: ['Return'] }]);
   await page.waitForURL(url => url.origin === 'https://chatgpt.com', { timeout: 45000, waitUntil: 'domcontentloaded' });
   let navigation;
   for (let attempt = 0; attempt < 200; attempt++) {
@@ -149,13 +177,21 @@ async function readDefaultSearchProvider(page) {
     const submissions = await page.evaluate(() => window.fixtureSends);
     if (submissions !== 1) throw Error('Expected one fixture submission');
     pass('Prefilled composer is sent once after hydration without manual Send', { editor: fixtureType, submissions, extensionSendClicks: send.clicks, manualSendClicks: send.manualClicks, realChatGPTAPI: false });
-  } else pass('Extension clicks Send once and a real ChatGPT conversation returns the answer', { expected, reply, extensionSendClicks: send.clicks, manualSendClicks: send.manualClicks, harnessComposerInteractions: 0, signedIn: false, publicOpenAIAPI: false });
+  } else {
+    report.session.after = await observeSession(page);
+    pass('Extension clicks Send once and a real ChatGPT conversation returns the answer', { expected, reply, extensionSendClicks: send.clicks, manualSendClicks: send.manualClicks, harnessComposerInteractions: 0, signedIn: report.session.after.signedIn ?? report.session.before.signedIn, publicOpenAIAPI: false });
+  }
   const finalTabs = await worker.evaluate(() => chrome.tabs.query({ active: true, currentWindow: true }));
   const finalWindows = await worker.evaluate(() => chrome.windows.getAll());
   if (finalTabs[0].id !== initialTabs[0].id || newPages !== 0) throw Error('The input opened another tab');
   if (finalWindows.length !== initialWindows.length || finalWindows.some(window => window.type === 'popup')) throw Error('The input opened a popup or additional window');
   pass('Answer stays in the original tab with no popup or additional window', { tabId: finalTabs[0].id, newTabs: newPages, windows: finalWindows.length });
   await page.screenshot({ path: path.join(artifacts, fixtureType ? 'prefill-fixture-' + fixtureType + '.png' : keepDefault ? 'live-chatgpt-keep-default.png' : 'live-chatgpt.png') });
+  if (recordBrowser) {
+    await page.waitForTimeout(1800);
+    execFileSync('python3', ['-c', 'import os,sys; from PIL import ImageGrab; ImageGrab.grab(bbox=(10,10,1210,910), xdisplay=os.environ["DISPLAY"]).save(sys.argv[1])', path.join(artifacts, 'browser-verification.png')], { env: process.env });
+    await stopRecording();
+  }
   if (fixtureType) {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1200);
@@ -176,7 +212,7 @@ async function readDefaultSearchProvider(page) {
     .filter(file => !file.startsWith('_metadata' + path.sep) && fs.statSync(path.join(extensionRoot, file)).isFile()).sort()
     .map(file => [file.split(path.sep).join('/'), crypto.createHash('sha256').update(fs.readFileSync(path.join(extensionRoot, file))).digest('hex')]));
   if (warmTab) report.warmTab = true;
-  fs.writeFileSync(path.join(artifacts, fixtureType ? 'browser-results-prefill-' + fixtureType + '.json' : keepDefault ? 'browser-results-keep-default.json' : warmTab ? 'browser-results-warm-tab.json' : 'browser-results.json'), JSON.stringify(report, null, 2) + '\n');
+  fs.writeFileSync(path.join(artifacts, recordBrowser ? 'browser-verification-latest.json' : fixtureType ? 'browser-results-prefill-' + fixtureType + '.json' : keepDefault ? 'browser-results-keep-default.json' : warmTab ? 'browser-results-warm-tab.json' : 'browser-results.json'), JSON.stringify(report, null, 2) + '\n');
   console.log('E2E PASS');
 })().catch(async error => {
   report.status = 'FAIL';
@@ -191,4 +227,4 @@ async function readDefaultSearchProvider(page) {
     } catch {}
   }
   process.exitCode = 1;
-}).finally(async () => { if (context) await context.close(); fs.rmSync(profile, { recursive: true, force: true }); if (keepDefault) fs.rmSync(extensionRoot, { recursive: true, force: true }); });
+}).finally(async () => { if (recorder) await stopRecording().catch(error => console.error(error.message)); if (context) await context.close(); fs.rmSync(profile, { recursive: true, force: true }); if (keepDefault && !providedExtension) fs.rmSync(extensionRoot, { recursive: true, force: true }); });

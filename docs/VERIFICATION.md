@@ -2,6 +2,15 @@
 
 v3 no longer depends on native ChatGPT q-query auto-submit. The extension receives a browser-authorized fragment handoff, fills the composer, and clicks Send once.
 
+## Recorded verification of the public download
+
+The [latest browser report](verification/browser-verification-latest.json) records a fresh headed-browser run of the publicly downloadable v3 ZIP, including its SHA-256. It starts with ChatGPT already open, uses native address-bar keystrokes and one Enter, observes one extension Send click and zero manual Send clicks, and receives the expected real reply with conversation HTTP 200.
+
+- [Native Chrome recording (MP4)](verification/browser-verification.mp4)
+- [Native Chrome screenshot](verification/browser-verification.png)
+
+Login controls were observed both before and after this run. **The browser was signed out.** This recording is not signed-in-account evidence. The recording covers the actual address-bar submission and reply; there are no mocked responses in this run. It does not establish that the user's authenticated session has passed.
+
 ## Real website runs
 
 - [Main build](verification/browser-results.json)
