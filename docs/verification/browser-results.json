@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-11-09T04:16:14.098Z",
+  "browser": "151.0.7922.34",
+  "tests": [
+    {
+      "name": "Manifest V3 extension loads in real Chromium",
+      "status": "PASS",
+      "extensionId": "glocnnjmpaeminapikjnplfbmoibnnfl"
+    },
+    {
+      "name": "Native ask + Tab + prompt + Enter opens chatgpt.com",
+      "status": "PASS",
+      "prompt": "Calculate 19 plus 23. Reply with exactly ASK_CHATGPT_NOW_6A0EF3C1AB_ followed by the answer, with no spaces."
+    },
+    {
+      "name": "Live ChatGPT website conversation POST returns a real assistant reply",
+      "status": "PASS",
+      "expected": "ASK_CHATGPT_NOW_6A0EF3C1AB_42",
+      "reply": "ASK_CHATGPT_NOW_6A0EF3C1AB_42",
+      "signedIn": false,
+      "publicOpenAIAPI": false
+    },
+    {
+      "name": "Native toolbar action shortcut opens a separate ChatGPT popup window",
+      "status": "PASS",
+      "url": "https://chatgpt.com/",
+      "bounds": {
+        "left": 20,
+        "top": 20,
+        "width": 520,
+        "height": 760,
+        "windowState": "normal"
+      }
+    },
+    {
+      "name": "Native mouse click on the extension action opens ChatGPT in a popup",
+      "status": "PASS",
+      "url": "https://chatgpt.com/"
+    },
+    {
+      "name": "No extension service worker errors",
+      "status": "PASS"
+    }
+  ],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/prepare",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8"
+    },
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/updates",
+      "status": 200,
+      "contentType": "application/vnd.openai.conversation-source+ndjson; charset=utf-8"
+    },
+    {
+      "method": "POST",
+      "path": "/unauth-mweb/conversation/prepare",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8"
+    }
+  ],
+  "status": "PASS",
+  "note": "Tests use the actual ChatGPT website in a fresh signed-out browser profile, not the public OpenAI developer API. No model is forced or inferred from the reply.",
+  "extensionFilesSha256": {
+    "core.js": "37f4640d5b01ebe8d1d0c9a1df36ff0ab44f5aa9326e7a85c3948a4ccf1c2b7f",
+    "icons/icon128.png": "d36fb9769cd85d67d9edfffb8fb83ded470efa057d489254e8cc7151936a2b0f",
+    "icons/icon16.png": "5bfb274c4c40e17de3caab696a3668cd264aa8ede8524ad7fef358184570b6f7",
+    "icons/icon32.png": "c23acdcb68efbac186a0b1bdc2e784dd4e1456a840912fece86677128e15cf5e",
+    "icons/icon48.png": "a787f6ce1007b2b4c6c1492cd1622c6db6c4b7ff0f5f0d4b63243be7c5c7bd32",
+    "manifest.json": "4d4a3a708c6f47a4d8abf32b9e584c9a816a04d918977699671f465ccbbe49e6",
+    "worker.js": "cd229034d70c1ec1b3bd5d8ed84bf54c92148633cda0caac9ab29cab083ace64"
+  }
+}
