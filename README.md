@@ -16,12 +16,14 @@ ChatGPT receives the prompt through its `q` URL parameter and starts the convers
 
 ## Install in Chrome
 
-1. [Download the latest extension ZIP](https://github.com/liush2yuxjtu/ask-chatgpt-now/releases/latest) and extract it into a folder you will keep.
+1. [Download the extension ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-v1.0.0.zip) and extract it into a folder you will keep.
 2. Open `chrome://extensions` and enable **Developer mode**.
 3. Click **Load unpacked** and choose the extracted folder containing `manifest.json`.
 4. Open Chrome's extensions menu (the puzzle icon) and **pin Ask ChatGPT Now**.
 
 If you clone this repository instead, select its **`extension/`** folder in step 3. Chrome does not directly install a downloaded ZIP by double-clicking it. Managed browsers may require an administrator to allow unpacked extensions.
+
+The verified ZIP and its [SHA-256 checksum](downloads/SHA256SUMS.txt) are stored in [`downloads/`](downloads/).
 
 ## Use a prompt URL in another browser
 
