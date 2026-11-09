@@ -1,64 +1,68 @@
-# v2 verification
+# v3 verification — actual Send action
 
-**Local checks and both live ChatGPT website E2E flows: PASS.**
+v3 no longer depends on native ChatGPT q-query auto-submit. The extension receives a browser-authorized fragment handoff, fills the composer, and clicks Send once.
 
-- [Default-provider report](verification/browser-results.json)
-- [Keep-default report](verification/browser-results-keep-default.json)
+## Real website runs
 
-Both runs used Chrome for Testing 151.0.7922.34, Playwright 1.62.1, an isolated Linux X11 display, and a fresh signed-out browser profile.
+- [Main build](verification/browser-results.json)
+- [Keep-default build](verification/browser-results-keep-default.json)
+- [Already-open ChatGPT tab](verification/browser-results-warm-tab.json)
 
-## What actually happened
+Both runs used a fresh **signed-out** Chrome for Testing 151.0.7922.34 browser with the actual ChatGPT website. The harness typed only in Chrome's native address bar and pressed Enter once. It did not fill the ChatGPT composer or click Send.
 
-The test typed a freshly generated arithmetic prompt **only into Chrome's native address bar**, then pressed **Enter once**. It did not type ask, press Tab, interact with ChatGPT's composer, click Send, or submit a second prompt. ChatGPT automatically returned the exact random marker followed by the correct answer, **42**, in the original tab.
-
-| Check | Default-provider build | Keep-default build |
+| Check | Main | Keep-default |
 | --- | --- | --- |
-| Native plain prompt + one Enter submits the exact prompt | PASS | PASS |
-| ChatGPT produces a real answer without composer interaction | PASS | PASS |
-| Website conversation POST returns HTTP 200 | PASS | PASS |
-| Query has only q; no forced web-search/model parameter | PASS | PASS |
-| Original active tab is retained | PASS | PASS |
-| New tabs / extra windows / popups during submission | 0 / 0 / 0 | 0 / 0 / 0 |
-| No toolbar popup action or popup shortcut in manifest | PASS | PASS |
-| No extension service worker errors | PASS | PASS |
-| Original Google default provider remains unchanged | Not applicable | PASS, compared before and after |
+| Browser reports generated navigation from address bar | PASS | PASS |
+| Handoff preserves prompt without native q auto-submit | PASS | PASS |
+| Extension Send clicks observed in page | 1 | 1 |
+| Trusted/manual Send clicks | 0 | 0 |
+| Actual conversation POST | HTTP 200 | HTTP 200 |
+| Unique marker plus correct 19 + 23 answer | PASS | PASS |
+| Original tab retained; no popup or additional window | PASS | PASS |
+| Original Google provider preserved | Not applicable | PASS |
 
-All **7 unit tests**, JavaScript syntax checks, and both installable ZIP integrity checks passed. The ZIP contents are checked against the SHA-256 hashes of the files loaded for the live runs.
+The successful live endpoints included POST /unauth-mweb/conversation/prepare and POST /unauth-mweb/conversation/updates. These are ChatGPT website requests, not the public OpenAI developer API.
 
-The real website made requests including:
+The already-open-tab run also passed with one extension Send click and a real reply. A constant ask_chatgpt_now=1 query flag forces a new document instead of letting an existing page's hash router consume the handoff. The extension removes that flag and the prompt fragment before sending. The flag contains no prompt, native q auto-submit is not used, and no hints=search parameter is present.
 
-~~~text
-POST https://chatgpt.com/unauth-mweb/conversation/prepare → 200
-POST https://chatgpt.com/unauth-mweb/conversation/updates → 200
-~~~
+## Prefilled-but-unsent regression cases
 
-The updates response used application/vnd.openai.conversation-source+ndjson. Only status, path, content type, and the non-sensitive test prompt/reply were retained. No credentials, cookies, request headers, private browser profiles, or full network captures are included.
+These tests use **controlled browser fixtures, not a logged-in ChatGPT account and not real API responses**:
+
+- [Prefilled textarea report](verification/browser-results-prefill-textarea.json)
+- [Prefilled contenteditable report](verification/browser-results-prefill-rich.json)
+
+Both layouts begin with the exact prompt already present and with native URL auto-submit absent. The Send button becomes enabled after hydration. Each case passed:
+
+1. The extension waited until ready and clicked Send exactly once.
+2. No manual Send click or second prompt entry occurred.
+3. Reloading did not replay the pending prompt.
+4. The original browser tab and window remained.
+
+Fixtures are visibly labeled as controlled test pages in their screenshots. Their reports set realChatGPTAPI to false. They must not be cited as proof that an authenticated ChatGPT session was tested.
+
+## Unit and package checks
+
+All **9 unit tests** and syntax checks passed. Tests cover payload encoding, narrow origin/path parsing, rejecting links/typed URLs/reload/back/iframes, document and tab matching, single-use claims, expiry, and Google/Bing redirect query preservation.
+
+Release archives are compared file-by-file with SHA-256 hashes from the corresponding real browser runs. Chrome-generated DNR index caches are not shipped or counted as source files.
 
 ## Screenshots
 
-- [Main build: actual answer](verification/live-chatgpt.png)
-- [Main build: Linux one-time search-provider setup](verification/search-provider-settings.png)
-- [Keep-default build: actual answer](verification/live-chatgpt-keep-default.png)
+- [Real main-build answer](verification/live-chatgpt.png)
+- [Real keep-default answer](verification/live-chatgpt-keep-default.png)
+- [Controlled prefilled textarea](verification/prefill-fixture-textarea.png)
+- [Controlled prefilled contenteditable](verification/prefill-fixture-rich.png)
 
-## Additional no-extension verification
+## What remains unverified
 
-Chrome's built-in search-provider configuration also passed a separate live run with no project extension loaded. After one configuration through the real settings UI, one native address-bar prompt plus one Enter produced the expected real ChatGPT reply, a conversation HTTP 200, and no additional tab, popup, or composer interaction.
+No real signed-in account is available to this environment. These results do not establish that the reporting user's authenticated session, every account rollout, every model, or every ChatGPT UI version has passed.
 
-See the [no-extension report](verification/browser-results-no-extension.json), [settings screenshot](verification/no-extension-settings.png), [answer screenshot](verification/no-extension-chatgpt.png), and [zero-download setup guide](NO_EXTENSION.md). The reproducible harness is scripts/browser-no-extension-e2e.cjs and uses the same RUN_LIVE_CHATGPT=1 opt-in as the other live tests.
+The main build was exercised on Linux after a one-time custom search-provider setup through Chrome's real settings UI. Windows/macOS automatic extension search overrides were not tested. Bing redirect patterns have unit coverage; a Bing-default browser was not separately exercised live.
 
-## Setup and coverage limits
-
-Chrome's [settings-override documentation](https://developer.chrome.com/docs/extensions/reference/manifest/chrome-settings-override) lists Windows and macOS for automatic extension search-provider overrides. On the Linux test browser, the main build's ChatGPT provider was added and made default once through Chrome's **real settings UI**, before the address-bar flow was tested. This is not evidence that the main extension automatically changes the default provider on Linux or that its Windows/macOS override was tested.
-
-The keep-default build needed no search-provider change. The browser's initial Google provider was inspected before the live prompt and compared again afterward. Its rule also targets Bing.com, with query encoding, parameter order, and rule scope covered by unit tests; a Bing-default browser was not separately exercised live. Other search engines, Google country domains, and browsers were not tested.
-
-No specific ChatGPT model was forced or identified. This verifies the real ChatGPT website's API request and response, not api.openai.com. Normal account, login, regional availability, and usage limits apply.
-
-“Does not force web search” means the destination has only the q parameter, without hints=search. ChatGPT can still choose tools based on the question.
+The previous no-extension and v2 evidence records historical signed-out behavior. It does not justify a universal no-second-click claim and is superseded by the v3 approach.
 
 ## Repeat
-
-Local checks and packaging need only Node.js 20+ and Python 3:
 
 ~~~sh
 npm run check
@@ -66,15 +70,16 @@ npm test
 npm run package
 ~~~
 
-For optional live verification, install Playwright separately and use a dedicated Linux test display with libX11 and libXtst. On a machine with xvfb-run:
+Install Playwright separately and use a dedicated test display with libX11/libXtst. The following commands require xvfb-run; another isolated X11 display can be used instead.
 
 ~~~sh
 npm install --no-save --package-lock=false playwright@1.62.1
 npx playwright install chromium
 RUN_LIVE_CHATGPT=1 xvfb-run -a node scripts/browser-e2e.cjs
 RUN_LIVE_CHATGPT=1 TEST_VARIANT=keep-default xvfb-run -a node scripts/browser-e2e.cjs
+RUN_LIVE_CHATGPT=1 TEST_WARM_TAB=1 xvfb-run -a node scripts/browser-e2e.cjs
+RUN_LIVE_CHATGPT=1 TEST_PREFILL_FIXTURE=textarea xvfb-run -a node scripts/browser-e2e.cjs
+RUN_LIVE_CHATGPT=1 TEST_PREFILL_FIXTURE=rich xvfb-run -a node scripts/browser-e2e.cjs
 ~~~
 
-The keep-default package must be built first. The harness extracts that trusted local ZIP into an isolated directory. Profiles and temporary extracted files are removed after testing. GitHub Actions runs syntax, unit, and packaging checks; it does not submit ChatGPT prompts.
-
-The request-redirection option uses Chrome's stable [declarativeNetRequest redirect API](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest). It does not rely on the developer-channel omnibox.directInput experiment. See the README for the difference in permissions and the effect on Google/Bing site searches.
+The two fixture commands mock only the page for regression coverage and do not make real ChatGPT API calls. The two non-fixture commands use the live website. GitHub Actions checks syntax, units, and packaging without sending ChatGPT prompts.

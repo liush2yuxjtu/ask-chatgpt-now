@@ -4,7 +4,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": { "regexSubstitution": "https://chatgpt.com/?q=\\1" }
+      "redirect": { "regexSubstitution": "https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=\\1" }
     },
     "condition": {
       "regexFilter": "^https://(?:www\\.)?google\\.com/search\\?(?:[^#]*&)?q=([^&#]*)(?:&[^#]*)?(?:#.*)?$",
@@ -16,7 +16,7 @@
     "priority": 1,
     "action": {
       "type": "redirect",
-      "redirect": { "regexSubstitution": "https://chatgpt.com/?q=\\1" }
+      "redirect": { "regexSubstitution": "https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=\\1" }
     },
     "condition": {
       "regexFilter": "^https://(?:www\\.)?bing\\.com/search\\?(?:[^#]*&)?q=([^&#]*)(?:&[^#]*)?(?:#.*)?$",

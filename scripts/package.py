@@ -30,8 +30,8 @@ variant = json.loads(json.dumps(manifest))
 variant.pop("chrome_settings_overrides")
 variant["name"] = "Ask ChatGPT Now (keep default)"
 variant["description"] = "Keep your search engine setting. Redirect Google.com/Bing.com search pages to normal ChatGPT chat in the same tab."
-variant["permissions"] = ["declarativeNetRequestWithHostAccess"]
-variant["host_permissions"] = [
+variant["permissions"] = variant.get("permissions", []) + ["declarativeNetRequestWithHostAccess"]
+variant["host_permissions"] = variant.get("host_permissions", []) + [
     "https://www.google.com/*", "https://google.com/*",
     "https://www.bing.com/*", "https://bing.com/*"
 ]

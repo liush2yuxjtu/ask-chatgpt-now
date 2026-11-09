@@ -1,79 +1,62 @@
-# Ask ChatGPT Now — v2
+# Ask ChatGPT Now — v3
 
-**在 Chrome 地址栏输入问题 → 按 Enter → 当前标签页进入 ChatGPT，自动发送问题并显示回答。**
+**修复“问题已填入，但还要手动点击发送”：v3 由扩展填入问题并点击 Send 一次，不再依赖 ChatGPT 的 q 链接是否自动发送。**
 
-问题只输入一次。新版没有弹窗入口，不需要在 ChatGPT 页面再次输入或点击发送。使用普通聊天链接，不强制启用 ChatGPT 的“搜索网页”工具。
+之前的 URL-only 建议说得过于笼统：匿名会话中观察到的自动回答，不能保证已登录会话同样自动发送。单独设置 https://chatgpt.com/?q=%s 可能只会预填草稿。
 
-## 不想下载？可以完全不安装扩展
+## 升级与使用
 
-Chrome 自带的搜索引擎设置就能实现相同功能，只需设置一次。无需开发者账号或注册费，见[不下载扩展的设置方法](docs/NO_EXTENSION.md)。
-
-本项目目前没有 Chrome 商店安装页。GitHub 下载链接不能直接安装扩展；现有版本还需处理商店发布要求，见[安装链接与商店状态](docs/DISTRIBUTION.md)。
-
-## 两个版本，选择一个安装
-
-| 版本 | 浏览器默认搜索引擎 | 适用方式 |
-| --- | --- | --- |
-| [主版本 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-v2.0.0.zip) | 将地址栏搜索交给 ChatGPT | 你选的方案；不请求网站访问权限 |
-| [保留默认引擎版 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-keep-default-v2.0.0.zip) | 保持原设置 | 将 Google.com/Bing.com 搜索页导航重定向到 ChatGPT；需要这些站点的访问权限 |
-
-两个版本的聊天地址都只使用 q 参数，不包含 hints=search，不选择特定模型。ChatGPT 仍可能根据问题内容自行决定是否使用搜索等工具。
-
-“浏览器默认搜索引擎”和“ChatGPT 搜索网页工具”是两件事。选择主版本不会自动开启后者。
-
-## 安装或升级
-
-1. 已安装 1.0 版：先移除旧版，或用新版替换原文件夹后点“重新加载”。只保留一个版本启用。
-2. 下载所选 ZIP，解压到一个固定文件夹。
-3. 打开 chrome://extensions，启用“开发者模式”。
-4. 点击“加载已解压的扩展程序”，选择包含 manifest.json 的文件夹。
-5. 主版本如出现搜索引擎确认，确认使用 ChatGPT。然后在地址栏输入一句普通问题并按 Enter。
-
-新版无需固定工具栏图标，也没有 Alt+Shift+G 弹窗快捷键。
-
-### 主版本：Windows / macOS / Linux
-
-Chrome 的官方扩展设置覆盖接口支持 Windows 和 macOS。这里的 Linux 测试环境通过下面的一次设置验证了完整流程；Windows/macOS 的自动覆盖没有在此环境实测。
-
-如果安装后普通地址栏问题仍交给原搜索引擎，或使用 Linux：
-
-1. 打开 chrome://settings/searchEngines。
-2. 在“网站搜索”中点“添加”。
-3. 名称填 ChatGPT，快捷方式填 chatgpt.com，查询 URL 填：
+1. 移除旧版 v1/v2，或用 v3 文件替换原文件夹并在 chrome://extensions 重新加载。只启用一个版本。
+2. 选择一个 [v3 主版本 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-v3.0.0.zip) 或 [v3 保留默认引擎版 ZIP](https://raw.githubusercontent.com/liush2yuxjtu/ask-chatgpt-now/main/downloads/ask-chatgpt-now-keep-default-v3.0.0.zip)，解压，在 chrome://extensions 用“加载已解压的扩展程序”加载。
+3. 新版需要 chatgpt.com 页面访问权限和 webNavigation 权限，用于确认地址栏请求并完成发送。
+   加载或升级后，请先刷新已经打开的 ChatGPT 页面，让新内容脚本生效。
+4. 主版本在 Windows/macOS 使用搜索引擎设置覆盖。在 Linux 或原先已经手动配置过 ChatGPT 搜索引擎时，检查“当前默认”条目的查询网址，改为：
 
 ~~~text
-https://chatgpt.com/?q=%s
+https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=%s
 ~~~
 
-4. 保存后，在 ChatGPT 条目的菜单中选择“设为默认”。
+5. 先登录 ChatGPT，再在 Chrome 地址栏输入普通问题并按 Enter。扩展等待输入框和发送按钮就绪后自动点击 Send。
 
-这只需配置一次；以后输入问题再按 Enter 即可。地址栏中看起来像网址的内容仍可能由 Chrome 当作网址正常打开。
+这个网址是给 **Chrome 搜索引擎设置**使用的模板，需要 v3 扩展。它不是一个无需扩展就能自动发送的普通链接。为避免外部网页触发聊天，直接点击或粘贴问题链接不会获得自动发送授权。
 
-### 保留默认引擎版的边界
+如果使用保留默认引擎版，保持 Google.com 或 Bing.com 为默认；扩展会把对应搜索页导航转成同样的 v3 交接格式。它也会影响从这些搜索网站页面发起的搜索，但 v3 仅对地址栏发起的请求自动发送，网页内发起的跳转不会获得发送授权。
 
-这个版本不修改默认搜索引擎设置，使用 Chrome 稳定版的 declarativeNetRequest 规则。它只匹配 Google.com/Bing.com 的 HTTPS 搜索页导航，并保留原问题的编码。
+## 自动发送的边界
 
-这是开发者模式版本，不能据此认为它适合直接提交 Chrome 商店；商店对修改默认搜索体验另有 API 要求，详见[发布限制](docs/DISTRIBUTION.md)。
+- 只接受 Chrome 标记为来自地址栏的搜索导航；普通网页链接、页面跳转、后退和刷新不会自动发送。
+- 每次交接只能被对应标签页和文档消费一次；发送前移除交接片段，避免刷新重发。
+- 确认输入框内容是当前问题后，仅点击一次 Send。若用户先自行发送，扩展停止。
+- 如发现不相关草稿，扩展会显示提示并停止，避免覆盖已有内容。
+- 如页面未就绪、需要登录或 ChatGPT 改变了页面结构，扩展会提示未发送；不会循环点击，也不会绕过登录或网站限制。
 
-它也会重定向从这些搜索网站页面发起的搜索，不限于地址栏；保留的搜索引擎仍可能接收原有的搜索建议请求。其他国家域名或其他搜索引擎没有覆盖。只希望地址栏交给 ChatGPT、又不希望网站搜索被重定向时，选主版本。
+不会打开弹窗或新窗口，也不强制开启网页搜索。没有 OpenAI API key，没有调用 api.openai.com，没有指定或解锁模型。模型和限额由 ChatGPT 决定。
 
-## 不改默认搜索引擎还有其他办法吗？
+## 验证结果与明确限制
 
-- 完整问题链接可以直接打开，例如 https://chatgpt.com/?q=Explain%20closures。需要自己提供网址前缀和正确编码。
-- 关键词模式仍可用：ask → Tab → 问题 → Enter。这需要额外的关键词操作。
-- 新的 omnibox.directInput 接口仍受开发版和 ExperimentalOmniboxLabs 实验功能限制，不适合作为稳定版承诺。稳定版的搜索请求重定向是本项目提供的可选替代方案。
+[完整验证记录](docs/VERIFICATION.md)分别记录：
 
-来源：[Chrome 设置覆盖](https://developer.chrome.com/docs/extensions/reference/manifest/chrome-settings-override)、[DNR 重定向与权限](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest)、[Chromium directInput 权限定义](https://github.com/chromium/chromium/blob/main/extensions/common/api/_permission_features.json)。
+- 真实匿名 ChatGPT：扩展实际点击 Send **1 次**，人工发送 **0 次**，收到真实对话 HTTP 200 和正确回复。
+- 受控预填回归：textarea 和 contenteditable 两种已填入但未发送的布局，都等待就绪后发送一次；刷新不重复发送。
+- 保留默认引擎版：同样获得真实回复，Google 默认设置前后不变。
 
-## 真实验证与使用范围
+**尚无真实已登录账号的实站验证。受控页面测试不等于登录账号验证；不能据此保证所有账号、模型和页面版本都成功。**
 
-[验证报告、网络状态和截图](docs/VERIFICATION.md)记录了真实的 ChatGPT 网站回复、原标签页不变、无弹窗、没有页面输入框操作，以及可选版本的默认搜索引擎前后比较。
+## 安装链接与旧方案
 
-不需要 OpenAI API key。本项目使用真实 ChatGPT 网站，不调用 api.openai.com。登录、地区、账户功能、模型和使用限额由 ChatGPT 决定；不保证 GPT-6 Luna。网页搜索功能没有被默认强制开启。
+本项目尚未发布到 Chrome 商店，GitHub ZIP 仍需开发者模式加载。不能提供不存在的“一键安装”商店链接。[发布条件与政策限制](docs/DISTRIBUTION.md)仍适用。
 
-## 隐私与开发
+旧的 [URL-only 方案说明](docs/NO_EXTENSION.md)已经更正，不再把它作为可靠的自动发送方案推荐。
 
-主版本没有权限列表、网站访问权限、内容脚本或分析统计。可选版本仅增加声明式重定向权限及上述搜索站点权限；没有读取聊天、Cookie 或账户凭据的代码。问题出现在目标 URL 中，可能进入浏览器历史记录与同步。ChatGPT 按 [OpenAI 隐私政策](https://openai.com/policies/privacy-policy/)处理问题。
+## 隐私
+
+问题使用专用片段参数交接，不依赖原生 q 自动发送。导航请求本身不携带片段，但问题可能短暂出现在地址栏或历史中。
+
+扩展在浏览器内存中短暂保存待发送内容，匹配标签页和文档后立即消费；没有分析统计、遥测、远程脚本或聊天上传服务。页面访问权限只用于查找输入框、填入当前问题并点击发送。ChatGPT 按 [OpenAI 隐私政策](https://openai.com/policies/privacy-policy/)处理发送的内容。
+
+保留默认版另外请求 Google.com/Bing.com 站点权限及声明式重定向权限。浏览器原有的搜索建议请求仍可能交给原搜索引擎。
+
+## 开发
 
 需要 Node.js 20+ 和 Python 3。普通检查与打包没有 npm 依赖：
 
@@ -83,6 +66,6 @@ npm test
 npm run package
 ~~~
 
-打包生成主版本和保留默认引擎版两个 ZIP，manifest.json 均在压缩包根目录。[downloads/](downloads/) 中提供经过验证的发布副本和 [SHA-256 校验值](downloads/SHA256SUMS.txt)。
+打包生成两个 v3 ZIP，manifest.json 均位于根目录。[downloads/](downloads/) 提供发布副本和 [SHA-256 校验值](downloads/SHA256SUMS.txt)。
 
 MIT licensed. Independent project; not affiliated with or endorsed by OpenAI.

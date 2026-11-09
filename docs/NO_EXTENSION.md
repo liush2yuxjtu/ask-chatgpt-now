@@ -1,48 +1,23 @@
-# 不下载、不安装扩展：Chrome 自带设置方案
+# URL-only 方案的限制：不能保证自动发送
 
-这个方案直接实现：
+**先前把“仅设置 https://chatgpt.com/?q=%s 就无需再次发送”作为通用建议，是不准确的。**
 
-**地址栏输入问题 → Enter → 当前标签页打开 ChatGPT → 自动提交并显示回答。**
+本项目的旧匿名测试确实观察到了自动回复，但部分已登录会话只会预填问题，仍需要点击 Send。匿名成功不能推广为所有登录状态的保证。
 
-只需设置一次，不需要 Chrome Web Store 开发者账号、注册费、API key 或任何扩展安装包。
+因此，这个方案不再作为“无需二次发送”的可靠方案推荐。历史 [无扩展报告](verification/browser-results-no-extension.json)只记录当时的未登录测试，不是已登录账号验证。
 
-## 一次设置
+## 当前修复
 
-1. 将下面的地址复制到 Chrome 地址栏并打开：
+v3 使用扩展自己的片段交接，并由扩展填入问题、点击 Send 一次。升级并加载 v3 后，主版本的 Chrome 搜索引擎模板为：
 
 ~~~text
-chrome://settings/searchEngines
+https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=%s
 ~~~
 
-2. 在“网站搜索”旁点击“添加”，填写：
+这个模板需要 v3 扩展，不是普通免扩展链接。只应配置在 Chrome 搜索引擎设置中，不能把直接点击一个外部问题链接当作自动发送授权。
 
-| 字段 | 内容 |
-| --- | --- |
-| 名称 | ChatGPT |
-| 快捷字词 | gpt |
-| 以 %s 代替查询字词的网址 | https://chatgpt.com/?q=%s |
+详见 [README](../README.md) 和 [v3 验证范围](VERIFICATION.md)。真实已登录账号的实站验证仍未完成，受控预填布局测试不代表真实登录测试。
 
-3. 保存后，点击 ChatGPT 条目旁的三个点，选择“设为默认”。
+## 安装状态
 
-完成后，直接在地址栏输入普通问题并按 Enter 即可，不需要输入 gpt、不需要按 Tab，也不需要在 ChatGPT 页面再次输入或点击发送。
-
-## 与网页搜索的区别
-
-这个设置只是让 Chrome 把地址栏问题交给 ChatGPT。地址只包含 q 参数，没有 hints=search，不会强制开启 ChatGPT 的“搜索网页”工具。ChatGPT 仍可能根据提问自行决定是否使用工具。
-
-如果输入看起来像一个完整网址，Chrome 仍可能直接打开该网址。登录、模型、地区可用性与使用限额由 ChatGPT 决定。
-
-## 真实验证
-
-[无扩展验证报告](verification/browser-results-no-extension.json)记录了一个没有加载本项目扩展的新浏览器配置，通过 Chrome 自带设置完成上述配置后，仅使用原生地址栏输入一次问题并按 Enter 的结果。
-
-- [设置截图](verification/no-extension-settings.png)
-- [ChatGPT 自动回答截图](verification/no-extension-chatgpt.png)
-
-完整可重复验证脚本是 scripts/browser-no-extension-e2e.cjs。它只在显式启用 RUN_LIVE_CHATGPT=1 时发送真实测试问题。
-
-## 为什么不能发一个网页链接直接替你设置？
-
-普通网页不能静默安装 Chrome 扩展或任意更改浏览器默认搜索引擎。通过 Chrome 商店安装也仍需要点击“添加至 Chrome”并确认。
-
-本项目目前没有 Chrome 商店安装页。关于商店发布条件和现有版本的限制，见[安装链接与商店状态](DISTRIBUTION.md)。
+本项目仍没有 Chrome 商店安装页，需要开发者模式加载；正式商店发布的账号、域名验证及政策条件见 [DISTRIBUTION.md](DISTRIBUTION.md)。

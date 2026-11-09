@@ -1,14 +1,15 @@
-import { openPrompt } from "./core.js";
+import { createHandoffBroker } from "./core.js";
 
-// Register listeners at the top level so Chrome can wake the service worker.
-chrome.omnibox.onInputStarted.addListener(() => {
-  chrome.omnibox.setDefaultSuggestion({
-    description: "<match>Ask ChatGPT</match><dim> — press Enter to submit in this tab</dim>"
-  });
-});
+const broker = createHandoffBroker();
+const filter = { url: [{ schemes: ["https"], hostEquals: "chatgpt.com" }] };
 
-chrome.omnibox.onInputEntered.addListener((text, disposition) => {
-  openPrompt(chrome.tabs, text, disposition).catch((error) => {
-    console.error("Could not open your ChatGPT prompt:", error.message);
-  });
+// Chrome's navigation metadata, not a page-controlled event, authorizes sending.
+chrome.webNavigation.onCommitted.addListener(details => broker.note(details), filter);
+chrome.webNavigation.onReferenceFragmentUpdated.addListener(details => broker.note(details), filter);
+chrome.tabs.onRemoved.addListener(tabId => broker.clear(tabId));
+
+chrome.runtime.onMessage.addListener((message, sender, respond) => {
+  if (message?.type !== "ASK_CHATGPT_NOW_CLAIM") return false;
+  respond(broker.claim(sender, message.prompt));
+  return false;
 });

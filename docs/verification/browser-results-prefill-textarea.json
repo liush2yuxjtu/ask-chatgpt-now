@@ -1,0 +1,76 @@
+{
+  "checkedAt": "2026-11-09T14:19:34.862Z",
+  "version": "3.0.0",
+  "variant": "default-provider",
+  "browser": "151.0.7922.34",
+  "tests": [
+    {
+      "name": "Auto-submit extension loads with no popup action",
+      "status": "PASS"
+    },
+    {
+      "name": "Plain address-bar prompt plus one Enter creates a browser-authorized handoff",
+      "status": "PASS",
+      "prompt": "Calculate 19 plus 23. Reply with exactly ASK_CHATGPT_NOW_V3_1CE3EC7C94_ followed by the answer, with no spaces.",
+      "submittedUrl": "https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now=Calculate+19+plus+23.+Reply+with+exactly+ASK_CHATGPT_NOW_V3_1CE3EC7C94_+followed+by+the+answer%2C+with+no+spaces.",
+      "transitionType": "generated",
+      "transitionQualifiers": [
+        "from_address_bar"
+      ],
+      "keywordUsed": false,
+      "tabKeyUsed": false
+    },
+    {
+      "name": "Fragment handoff avoids native q auto-send and forced web search",
+      "status": "PASS",
+      "queryParameters": [
+        "ask_chatgpt_now"
+      ],
+      "flagCarriesPrompt": false
+    },
+    {
+      "name": "Prefilled composer is sent once after hydration without manual Send",
+      "status": "PASS",
+      "editor": "textarea",
+      "submissions": 1,
+      "extensionSendClicks": 1,
+      "manualSendClicks": 0,
+      "realChatGPTAPI": false
+    },
+    {
+      "name": "Answer stays in the original tab with no popup or additional window",
+      "status": "PASS",
+      "tabId": 282934084,
+      "newTabs": 0,
+      "windows": 1
+    },
+    {
+      "name": "Reload does not send the prefilled draft again",
+      "status": "PASS"
+    },
+    {
+      "name": "No extension service worker errors",
+      "status": "PASS"
+    }
+  ],
+  "network": [],
+  "environment": "controlled-prefilled-fixture-textarea",
+  "providerSetup": {
+    "platform": "linux",
+    "method": "One-time Chrome settings UI: add ChatGPT and choose Make default",
+    "automaticExtensionOverrideVerified": false,
+    "reason": "Chrome documents automatic search-provider overrides for Windows and macOS only."
+  },
+  "status": "PASS",
+  "note": "Controlled browser fixture for prefilled-but-unsent textarea/contenteditable state. It is not an authenticated ChatGPT session and makes no real ChatGPT API call. Live website evidence is in the separate non-fixture reports.",
+  "extensionFilesSha256": {
+    "auto-submit.js": "2291d17e02bc60ead61cad2c6a31c758538b04aeb7179aa014ed7c79fa7bc9ac",
+    "core.js": "04fcadd433aadc92d398b961d7d54a7f098a56cbe5f64ca79d694a9deb571beb",
+    "icons/icon128.png": "d36fb9769cd85d67d9edfffb8fb83ded470efa057d489254e8cc7151936a2b0f",
+    "icons/icon16.png": "5bfb274c4c40e17de3caab696a3668cd264aa8ede8524ad7fef358184570b6f7",
+    "icons/icon32.png": "c23acdcb68efbac186a0b1bdc2e784dd4e1456a840912fece86677128e15cf5e",
+    "icons/icon48.png": "a787f6ce1007b2b4c6c1492cd1622c6db6c4b7ff0f5f0d4b63243be7c5c7bd32",
+    "manifest.json": "eb2468c1df4e878f54a67a51b779e6367f68182c5e01bffcb653d52816042e92",
+    "worker.js": "0f321a5b21ceb836032ec48c6b00ffaa24a96191f68ed95b28b34108e349be2b"
+  }
+}

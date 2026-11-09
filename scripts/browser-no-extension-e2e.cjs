@@ -1,4 +1,5 @@
 const { chromium } = require('playwright');
+// Legacy signed-out URL-only probe: success is NOT a signed-in auto-send guarantee.
 const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');

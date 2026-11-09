@@ -18,8 +18,8 @@ test("optional search redirects preserve complete encoded prompts with reordered
     for (const parameters of [query, "source=chrome&" + query + "&ie=UTF-8"]) {
       const target = new URL(redirect("https://" + host + "/search?" + parameters));
       assert.equal(target.origin, "https://chatgpt.com");
-      assert.equal(target.searchParams.get("q"), prompt);
-      assert.deepEqual([...target.searchParams.keys()], ["q"]);
+      assert.equal(new URLSearchParams(target.hash.slice(1)).get("ask-chatgpt-now"), prompt);
+      assert.equal(target.search, "?ask_chatgpt_now=1");
     }
   }
 });

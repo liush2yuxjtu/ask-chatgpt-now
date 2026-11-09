@@ -1,20 +1,26 @@
 {
   "manifest_version": 3,
   "name": "Ask ChatGPT Now",
-  "version": "2.0.0",
-  "description": "Type a question in Chrome's address bar and press Enter. ChatGPT opens in the same tab and submits it as a normal chat.",
+  "version": "3.0.0",
+  "description": "Send address-bar prompts in the same tab. The extension fills ChatGPT and clicks Send once, instead of relying on URL auto-send.",
   "minimum_chrome_version": "109",
   "homepage_url": "https://github.com/liush2yuxjtu/ask-chatgpt-now",
   "background": {
     "service_worker": "worker.js",
     "type": "module"
   },
-  "omnibox": { "keyword": "ask" },
+  "permissions": ["webNavigation"],
+  "host_permissions": ["https://chatgpt.com/*"],
+  "content_scripts": [{
+    "matches": ["https://chatgpt.com/*"],
+    "js": ["auto-submit.js"],
+    "run_at": "document_start"
+  }],
   "chrome_settings_overrides": {
     "search_provider": {
       "name": "ChatGPT",
       "keyword": "chatgpt.com",
-      "search_url": "https://chatgpt.com/?q={searchTerms}",
+      "search_url": "https://chatgpt.com/?ask_chatgpt_now=1#ask-chatgpt-now={searchTerms}",
       "favicon_url": "https://chatgpt.com/favicon.ico",
       "encoding": "UTF-8",
       "is_default": true
